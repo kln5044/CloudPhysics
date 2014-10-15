@@ -2,7 +2,7 @@
 
 import numpy as np
 
-def parse_SPC(filename, skip_rows=6):
+def parse_SPC(filename, skip_rows=7):
 	""" Returns a "record array" which is a special type
 	of array that has column names and row access 
 	built into it.  The column names and data types
