@@ -4,7 +4,7 @@ C_to_K = 273.15
 c_p_dry = 1005.7
 c_V_dry = 718.66
 eps = 0.622
-k_dry = 0.0007
+k_dry = 0.2854
 
 def sat_vapor_pressure(T):
 	""" Inputs temperature in Celsius, outputs saturation 
@@ -56,42 +56,39 @@ def T_LCL(T,RH):
 	return T_LCL
 
 def theta_dry(theta,p,p_0=1000.0):
-	""" Inputs potential temperature in Kelvin and 
+	""" Inputs theta in Kelvin and 
 	possibly many pressures in mb and returns
-	dry potential temperature in Kelvin.  this
+	dry potential temperature in Kelvin.  This
 	equation assumes all pressure is due to 
 	dry air alone (e = 0).  Equation taken 
 	from Bolton (1980)."""
-	theta_dry = theta*((1000/p)**k_dry)
+	theta_dry = theta/((p_0/p)**k_dry)
 	return theta_dry
+	
 
 def pseudoeq_potential_T(T,p,w,p_0=1000.0):
 	""" Inputs temperature in degrees Celsius, 
-	pressure in mb, mixing ratio in kg/kg,
+	pressure in mb, and mixing ratio in kg/kg,
 	relative to a reference pressure level of
 	1000mb, outputs pseudoadiabatic 	
 	equivalent potential temperature in Kelvin.
 	Equation taken from Bolton (1980)."""
 
+	TK = T + C_to_K
 	RelHum = RH(T,p,w)
-	TLCL = T_LCL(T+C_to_K,RelHum)
-	pseudoT = ((T+C_to_K)*((1000/p)**(0.2854*(1-(0.28*w))))*np.exp(((3.376/TLCL)-0.00254)*((1000*w)*(1+(0.81*w)))))
+	TLCL = T_LCL(TK,RelHum)
+	pseudoT = TK * (p_0/p)**(0.2854*(1-(0.28*w)))*np.exp(((3.376/TLCL)-0.00254)*((1000*w)*(1+(0.81*w))))
 	return pseudoT 
 
 def theta_ep_field(T,p,p_0=1000.0):
 	""" Inputs temperature in degrees Celsius,
 	pressure in mb, and a reference pressure
 	level of 1000mb, outputs equivalent
-	potential temperature in Kelvin.
+	potential temperature in Kelvin
 	Equation taken from Bolton (1980)."""
 	w_s = sat_mixing_ratio(p,T)
-	RelHum = RH(T,p,w_s)
-	TLCL = T_LCL(T+C_to_K,RelHum)
 	theta_ep_field = pseudoeq_potential_T(T,p,w_s)
-#	theta_ep_field = [(T+C_to_K)*((1000/p)^(0.2854*[1-(0.28*(10**(-3))*w_s)]))]*np.exp[((3.376/TLCL)-0.00254)*w_s(1+(0.81*(10**-3)*w_s))]
 	return theta_ep_field 
-
-
 
 
 		
